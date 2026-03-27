@@ -42,7 +42,7 @@ function VocabCard({ vocab, unitColor }: { vocab: Vocabulary; unitColor: string 
         { backgroundColor: unitColor + "15", borderColor: unitColor + "40", transform: [{ rotateY: frontRotate }] }
       ]}>
         <Text style={[styles.vocabIndonesian, { color: unitColor }]}>{vocab.indonesian}</Text>
-        <Text style={[styles.vocabPronunciation, { color: colors.muted }]}>/{vocab.pronunciation}/</Text>
+        <Text style={[styles.vocabPronunciation, { color: colors.muted }]}>🔊 {vocab.pronunciation}</Text>
 
         {/* TTS Button */}
         <Pressable

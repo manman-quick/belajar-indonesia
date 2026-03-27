@@ -66,7 +66,7 @@ function FlashCard({
             <Text style={[styles.unitTagText, { color: vocab.unitColor }]}>{vocab.unitTitle}</Text>
           </View>
           <Text style={[styles.flashIndonesian, { color: vocab.unitColor }]}>{vocab.indonesian}</Text>
-          <Text style={[styles.flashPronunciation, { color: colors.muted }]}>/{vocab.pronunciation}/</Text>
+          <Text style={[styles.flashPronunciation, { color: colors.muted }]}>🔊 {vocab.pronunciation}</Text>
 
           {/* TTS Button */}
           <Pressable
