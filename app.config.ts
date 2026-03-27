@@ -89,7 +89,7 @@ const config: ExpoConfig = {
     lang: "zh-CN",
   },
   plugins: [
-    ["expo-router", { origin: "https://manman-quick.github.io" }],
+    "expo-router",
     [
       "expo-audio",
       {

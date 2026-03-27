@@ -1,7 +1,8 @@
 // Register Service Worker for PWA support
+// Uses subdirectory path for GitHub Pages deployment
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('/belajar-indonesia/sw.js', { scope: '/belajar-indonesia/' })
       .then(function (registration) {
         console.log('[PWA] Service Worker registered:', registration.scope);
       })
