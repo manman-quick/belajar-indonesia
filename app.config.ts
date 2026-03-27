@@ -81,12 +81,6 @@ const config: ExpoConfig = {
     bundler: "metro",
     output: "static",
     favicon: "./assets/images/favicon.png",
-    name: "Belajar Indonesia",
-    shortName: "Belajar ID",
-    description: "专为中文母语者设计的印尼语学习应用，从基础发音到进阶语法，系统化掌握印度尼西亚语。",
-    themeColor: "#FF6B35",
-    backgroundColor: "#ffffff",
-    lang: "zh-CN",
   },
   plugins: [
     "expo-router",
