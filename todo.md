@@ -47,3 +47,6 @@
 - [x] 创建 GitHub Actions 自动部署工作流
 - [x] 创建 GitHub 仓库并推送代码
 - [x] 验证 PWA 可在手机/电脑安装
+
+## Bug 修复
+- [ ] 修复 GitHub Pages SPA 路由 404（底部导航跳转失败）
