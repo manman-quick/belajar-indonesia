@@ -30,13 +30,25 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: '9.12.0'
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build Expo Web (static export)
-        run: pnpm exec expo export --platform web
+        run: pnpm exec expo export --platform web --output-dir dist
         env:
           NODE_ENV: production
 
@@ -49,14 +61,24 @@ jobs:
           cp public/favicon.ico dist/
           cp public/register-sw.js dist/
 
-      - name: Fix asset paths for GitHub Pages subdirectory
+      - name: Inject PWA tags into all HTML files
         run: |
-          # GitHub Pages serves from /belajar-indonesia/ subdirectory
-          # Update manifest.json start_url and icon paths
-          sed -i 's|"start_url": "/"|"start_url": "/belajar-indonesia/"|g' dist/manifest.json
-          sed -i 's|"src": "/favicon.ico"|"src": "/belajar-indonesia/favicon.ico"|g' dist/manifest.json
-          sed -i 's|"src": "/icon-192.png"|"src": "/belajar-indonesia/icon-192.png"|g' dist/manifest.json
-          sed -i 's|"src": "/icon-512.png"|"src": "/belajar-indonesia/icon-512.png"|g' dist/manifest.json
+          python3 << 'PYEOF'
+          import os, re
+          dist = 'dist'
+          pwa_head = '<meta name="application-name" content="Belajar Indonesia"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="default"/><meta name="apple-mobile-web-app-title" content="Belajar ID"/><meta name="mobile-web-app-capable" content="yes"/><meta name="theme-color" content="#FF6B35"/><link rel="manifest" href="/belajar-indonesia/manifest.json"/><link rel="apple-touch-icon" href="/belajar-indonesia/icon-192.png"/>'
+          pwa_sw = '<script src="/belajar-indonesia/register-sw.js"></script>'
+          for root, dirs, files in os.walk(dist):
+            for fname in files:
+              if fname.endswith('.html'):
+                path = os.path.join(root, fname)
+                with open(path) as f: content = f.read()
+                if 'manifest' not in content:
+                  content = content.replace('<meta charSet="utf-8"/>', '<meta charSet="utf-8"/>' + pwa_head)
+                  content = content.replace('</body>', pwa_sw + '</body>')
+                  with open(path, 'w') as f: f.write(content)
+          print('PWA tags injected into all HTML files')
+          PYEOF
 
       - name: Add .nojekyll to disable Jekyll processing
         run: touch dist/.nojekyll
