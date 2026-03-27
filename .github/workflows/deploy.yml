@@ -86,12 +86,35 @@ jobs:
           print('PWA tags injected into all HTML files')
           PYEOF
 
-      - name: Create 404.html for SPA routing (GitHub Pages fallback)
+      - name: Restructure dist for GitHub Pages subdirectory deployment
         run: |
-          # Copy index.html as 404.html so GitHub Pages serves it for all routes
-          # Expo Router's experiments.baseUrl handles the actual path resolution
-          cp dist/index.html dist/404.html
-          echo '404.html created for SPA routing'
+          # Move all Expo output into a belajar-indonesia/ subdirectory
+          # so that GitHub Pages serves /belajar-indonesia/review.html etc.
+          mkdir -p dist_final/belajar-indonesia
+          cp -r dist/. dist_final/belajar-indonesia/
+
+          # Create 404.html at root level for GitHub Pages SPA fallback
+          cp dist_final/belajar-indonesia/index.html dist_final/404.html
+
+          # Create root index.html that redirects to /belajar-indonesia/
+          cat > dist_final/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html><head>
+          <meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=/belajar-indonesia/">
+          <title>Redirecting...</title>
+          </head><body>
+          <script>window.location.replace('/belajar-indonesia/');</script>
+          </body></html>
+          EOF
+
+          # Add .nojekyll to root
+          touch dist_final/.nojekyll
+
+          # Replace dist with dist_final
+          rm -rf dist
+          mv dist_final dist
+          echo 'Restructured dist for GitHub Pages subdirectory deployment'
 
       - name: Add .nojekyll to disable Jekyll processing
         run: touch dist/.nojekyll
