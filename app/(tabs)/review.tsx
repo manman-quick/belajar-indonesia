@@ -4,6 +4,7 @@ import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useLearning } from "@/context/LearningContext";
 import { courseUnits, type Vocabulary } from "@/data/courseData";
+import { useSpeech } from "@/hooks/use-speech";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, interpolate } from "react-native-reanimated";
 
@@ -37,6 +38,7 @@ function FlashCard({
   const colors = useColors();
   const [flipped, setFlipped] = useState(false);
   const rotation = useSharedValue(0);
+  const { speak, isSpeaking } = useSpeech();
 
   const frontStyle = useAnimatedStyle(() => ({
     transform: [{ rotateY: `${interpolate(rotation.value, [0, 1], [0, 180])}deg` }],
@@ -65,6 +67,18 @@ function FlashCard({
           </View>
           <Text style={[styles.flashIndonesian, { color: vocab.unitColor }]}>{vocab.indonesian}</Text>
           <Text style={[styles.flashPronunciation, { color: colors.muted }]}>/{vocab.pronunciation}/</Text>
+
+          {/* TTS Button */}
+          <Pressable
+            onPress={(e) => { e.stopPropagation?.(); speak(vocab.indonesian); }}
+            style={[styles.reviewSpeakBtn, { backgroundColor: vocab.unitColor + "20", borderColor: vocab.unitColor + "50" }]}
+          >
+            <MaterialIcons name="volume-up" size={16} color={isSpeaking ? vocab.unitColor : colors.muted} />
+            <Text style={[styles.reviewSpeakText, { color: isSpeaking ? vocab.unitColor : colors.muted }]}>
+              {isSpeaking ? "朗读中..." : "朗读"}
+            </Text>
+          </Pressable>
+
           <View style={[styles.tapHint, { borderColor: colors.border }]}>
             <MaterialIcons name="touch-app" size={14} color={colors.muted} />
             <Text style={[styles.tapHintText, { color: colors.muted }]}>点击查看翻译</Text>
@@ -310,6 +324,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontStyle: "italic",
     textAlign: "center",
+  },
+  reviewSpeakBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 10,
+  },
+  reviewSpeakText: {
+    fontSize: 12,
+    fontWeight: "600",
   },
   tapHint: {
     flexDirection: "row",

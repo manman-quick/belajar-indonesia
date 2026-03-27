@@ -5,6 +5,7 @@ import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useLearning } from "@/context/LearningContext";
 import { getUnitById, getLessonById, type Vocabulary, type Question } from "@/data/courseData";
+import { useSpeech } from "@/hooks/use-speech";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 type Phase = "vocab" | "quiz" | "result";
@@ -14,6 +15,7 @@ function VocabCard({ vocab, unitColor }: { vocab: Vocabulary; unitColor: string 
   const colors = useColors();
   const [flipped, setFlipped] = useState(false);
   const flipAnim = useRef(new Animated.Value(0)).current;
+  const { speak, isSpeaking } = useSpeech();
 
   const handleFlip = () => {
     Animated.timing(flipAnim, {
@@ -22,6 +24,11 @@ function VocabCard({ vocab, unitColor }: { vocab: Vocabulary; unitColor: string 
       useNativeDriver: true,
     }).start();
     setFlipped(!flipped);
+  };
+
+  const handleSpeak = (e: any) => {
+    e.stopPropagation?.();
+    speak(vocab.indonesian);
   };
 
   const frontRotate = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "180deg"] });
@@ -36,6 +43,22 @@ function VocabCard({ vocab, unitColor }: { vocab: Vocabulary; unitColor: string 
       ]}>
         <Text style={[styles.vocabIndonesian, { color: unitColor }]}>{vocab.indonesian}</Text>
         <Text style={[styles.vocabPronunciation, { color: colors.muted }]}>/{vocab.pronunciation}/</Text>
+
+        {/* TTS Button */}
+        <Pressable
+          onPress={handleSpeak}
+          style={[styles.speakBtn, { backgroundColor: unitColor + "20", borderColor: unitColor + "50" }]}
+        >
+          <MaterialIcons
+            name={isSpeaking ? "volume-up" : "volume-up"}
+            size={18}
+            color={isSpeaking ? unitColor : colors.muted}
+          />
+          <Text style={[styles.speakBtnText, { color: isSpeaking ? unitColor : colors.muted }]}>
+            {isSpeaking ? "朗读中..." : "点击朗读"}
+          </Text>
+        </Pressable>
+
         <View style={[styles.flipHint, { borderColor: colors.border }]}>
           <MaterialIcons name="touch-app" size={14} color={colors.muted} />
           <Text style={[styles.flipHintText, { color: colors.muted }]}>点击翻转</Text>
@@ -55,6 +78,14 @@ function VocabCard({ vocab, unitColor }: { vocab: Vocabulary; unitColor: string 
             <Text style={[styles.exampleChinese, { color: colors.muted }]}>{vocab.exampleChinese}</Text>
           </View>
         )}
+        {/* TTS on back too */}
+        <Pressable
+          onPress={handleSpeak}
+          style={[styles.speakBtnBack, { backgroundColor: unitColor + "15", borderColor: unitColor + "40" }]}
+        >
+          <MaterialIcons name="volume-up" size={16} color={unitColor} />
+          <Text style={[styles.speakBtnBackText, { color: unitColor }]}>朗读印尼语</Text>
+        </Pressable>
       </Animated.View>
     </Pressable>
   );
@@ -73,6 +104,7 @@ function QuizQuestion({
   const colors = useColors();
   const [selected, setSelected] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const { speak } = useSpeech();
 
   const correctAnswer = Array.isArray(question.correctAnswer)
     ? question.correctAnswer.join(" ")
@@ -87,11 +119,15 @@ function QuizQuestion({
     if (!selected) return;
     setConfirmed(true);
     const isCorrect = selected === correctAnswer;
+    // Speak the correct answer after confirming
+    if (typeof correctAnswer === "string" && /[a-zA-Z]/.test(correctAnswer)) {
+      speak(correctAnswer);
+    }
     setTimeout(() => {
       onAnswer(isCorrect);
       setSelected(null);
       setConfirmed(false);
-    }, 1200);
+    }, 1400);
   };
 
   const getOptionStyle = (option: string) => {
@@ -535,7 +571,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   vocabCardContainer: {
-    height: 280,
+    height: 320,
     position: "relative",
   },
   vocabCard: {
@@ -563,8 +599,36 @@ const styles = StyleSheet.create({
   vocabPronunciation: {
     fontSize: 16,
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: 12,
     fontStyle: "italic",
+  },
+  speakBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  speakBtnText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  speakBtnBack: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginTop: 12,
+  },
+  speakBtnBackText: {
+    fontSize: 13,
+    fontWeight: "600",
   },
   flipHint: {
     flexDirection: "row",
