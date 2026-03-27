@@ -86,28 +86,15 @@ jobs:
           print('PWA tags injected into all HTML files')
           PYEOF
 
-      - name: Package dist into GitHub Pages structure
+      - name: Prepare dist for GitHub Pages
         run: |
-          # GitHub Pages serves from /belajar-indonesia/ (the repo name)
-          # We need: dist/belajar-indonesia/<all app files>
-          # Plus: dist/404.html (for SPA fallback) and dist/index.html (redirect)
-          mkdir -p dist_gh
-          # Move app into the repo-name subdirectory
-          mv dist dist_gh/belajar-indonesia
-          # Create 404.html at root for SPA fallback (GitHub Pages serves this for unknown paths)
-          cp dist_gh/belajar-indonesia/index.html dist_gh/404.html
-          # Create root redirect
-          cat > dist_gh/index.html << 'HTMLEOF'
-          <!DOCTYPE html><html><head><meta charset="utf-8">
-          <meta http-equiv="refresh" content="0; url=/belajar-indonesia/">
-          <title>Belajar Indonesia</title></head>
-          <body><script>window.location.replace('/belajar-indonesia/');</script></body></html>
-          HTMLEOF
-          touch dist_gh/.nojekyll
-          mv dist_gh dist
-          echo "Final dist structure:"
-          ls -la dist/
-          ls -la dist/belajar-indonesia/ | head -20
+          # GitHub Pages serves /belajar-indonesia/ from the root of our uploaded artifact
+          # Expo exports with root paths (/, /review, /stats etc.)
+          # So we just need 404.html = index.html for SPA routing, and .nojekyll
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+          echo "dist structure:"
+          ls -la dist/ | head -20
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
