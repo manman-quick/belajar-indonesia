@@ -47,10 +47,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Clear NativeWind CSS cache (prevents SHA-1 error)
+        run: |
+          mkdir -p node_modules/react-native-css-interop/.cache
+          touch node_modules/react-native-css-interop/.cache/web.css
+
       - name: Build Expo Web (static export)
         run: pnpm exec expo export --platform web --output-dir dist
         env:
           NODE_ENV: production
+          EXPO_USE_METRO_WORKSPACE_ROOT: 1
 
       - name: Copy PWA assets to dist
         run: |
