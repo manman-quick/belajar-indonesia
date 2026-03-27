@@ -128,7 +128,6 @@ const config: ExpoConfig = {
   experiments: {
     typedRoutes: true,
     reactCompiler: true,
-    baseUrl: "/belajar-indonesia",
   },
 };
 
