@@ -39,3 +39,11 @@
 - [x] 进阶单元8：复杂句型（条件/因果/时间从句）
 - [x] 进阶单元9：口语与正式语
 - [x] 进阶单元10：文化与进阶话题
+
+## GitHub Pages + PWA 部署
+- [ ] 配置 PWA manifest（图标、名称、主题色）
+- [ ] 添加 Service Worker 离线缓存
+- [ ] 配置 Expo Web 静态导出
+- [ ] 创建 GitHub Actions 自动部署工作流
+- [ ] 创建 GitHub 仓库并推送代码
+- [ ] 验证 PWA 可在手机/电脑安装
