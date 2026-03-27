@@ -89,7 +89,7 @@ const config: ExpoConfig = {
     lang: "zh-CN",
   },
   plugins: [
-    "expo-router",
+    ["expo-router", { origin: "https://manman-quick.github.io", basePath: "/belajar-indonesia" }],
     [
       "expo-audio",
       {
